@@ -365,11 +365,23 @@
 
         .result-amount {
             font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .amount-value {
             font-weight: 700;
             color: var(--success-color);
             background-color: rgba(16, 185, 129, 0.1);
             padding: 5px 12px;
             border-radius: 8px;
+        }
+
+        .amount-currency {
+            margin-left: 5px;
+            font-size: 0.95rem;
+            font-weight: normal;
+            color: var(--text-light);
         }
 
         .result-details {
@@ -1095,20 +1107,23 @@
                     resultCard.innerHTML = `
                         <div class="result-header">
                             <div class="result-name">${result.name}</div>
-                            <div class="result-amount">${formatCurrency(result.finalAmount)}</div>
+                            <div class="result-amount">
+                                <span class="amount-value">${formatCurrency(result.finalAmount)}</span>
+                                <span class="amount-currency">VNĐ</span>
+                            </div>
                         </div>
                         <div class="result-details">
                             <div class="detail-item">
                                 <span>Theo % doanh thu (${result.percentage}%):</span>
-                                <span>${formatCurrency(result.percentageAmount)}</span>
+                                <span>${formatCurrency(result.percentageAmount)} VNĐ</span>
                             </div>
                             <div class="detail-item">
                                 <span>Đã chi:</span>
-                                <span>+ ${formatCurrency(result.expenses)}</span>
+                                <span>+ ${formatCurrency(result.expenses)} VNĐ</span>
                             </div>
                             <div class="detail-item">
                                 <span>Chia đều chi phí:</span>
-                                <span>- ${formatCurrency(result.expensesShare)}</span>
+                                <span>- ${formatCurrency(result.expensesShare)} VNĐ</span>
                             </div>
                         </div>
                     `;
@@ -1120,15 +1135,15 @@
                 summaryDetails.innerHTML = `
                     <div class="detail-item">
                         <span>Tổng doanh thu:</span>
-                        <span>${formatCurrency(totalRevenue)}</span>
+                        <span>${formatCurrency(totalRevenue)} VNĐ</span>
                     </div>
                     <div class="detail-item">
                         <span>Tổng chi phí:</span>
-                        <span>${formatCurrency(totalExpenses)}</span>
+                        <span>${formatCurrency(totalExpenses)} VNĐ</span>
                     </div>
                     <div class="detail-item">
                         <span>Chi phí mỗi người:</span>
-                        <span>${formatCurrency(totalExpenses / results.length)}</span>
+                        <span>${formatCurrency(totalExpenses / results.length)} VNĐ</span>
                     </div>
                 `;
                 
@@ -1143,7 +1158,7 @@
             
             function formatCurrency(amount) {
                 // Format with our custom function to ensure consistent display with periods
-                return formatDisplayNumber(amount) + ' VNĐ';
+                return formatDisplayNumber(amount);
             }
             
             function saveToCache() {
@@ -1371,20 +1386,23 @@
                     resultCard.innerHTML = `
                         <div class="result-header">
                             <div class="result-name">${result.name}</div>
-                            <div class="result-amount">${formatCurrency(result.finalAmount)}</div>
+                            <div class="result-amount">
+                                <span class="amount-value">${formatCurrency(result.finalAmount)}</span>
+                                <span class="amount-currency">VNĐ</span>
+                            </div>
                         </div>
                         <div class="result-details">
                             <div class="detail-item">
                                 <span>Theo % doanh thu (${result.percentage}%):</span>
-                                <span>${formatCurrency(result.percentageAmount)}</span>
+                                <span>${formatCurrency(result.percentageAmount)} VNĐ</span>
                             </div>
                             <div class="detail-item">
                                 <span>Đã chi:</span>
-                                <span>+ ${formatCurrency(result.expenses)}</span>
+                                <span>+ ${formatCurrency(result.expenses)} VNĐ</span>
                             </div>
                             <div class="detail-item">
                                 <span>Chia đều chi phí:</span>
-                                <span>- ${formatCurrency(result.expensesShare)}</span>
+                                <span>- ${formatCurrency(result.expensesShare)} VNĐ</span>
                             </div>
                         </div>
                     `;
@@ -1398,15 +1416,15 @@
                     <div class="result-details">
                         <div class="detail-item">
                             <span>Tổng doanh thu:</span>
-                            <span>${formatCurrency(data.totalRevenue)}</span>
+                            <span>${formatCurrency(data.totalRevenue)} VNĐ</span>
                         </div>
                         <div class="detail-item">
                             <span>Tổng chi phí:</span>
-                            <span>${formatCurrency(data.totalExpenses)}</span>
+                            <span>${formatCurrency(data.totalExpenses)} VNĐ</span>
                         </div>
                         <div class="detail-item">
                             <span>Chi phí mỗi người:</span>
-                            <span>${formatCurrency(data.totalExpenses / data.results.length)}</span>
+                            <span>${formatCurrency(data.totalExpenses / data.results.length)} VNĐ</span>
                         </div>
                         <div class="detail-item">
                             <span>Ngày xuất:</span>
