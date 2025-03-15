@@ -391,14 +391,37 @@
             background-color: var(--secondary-color);
             transform: translateY(-2px);
         }
+
+        /* Add styles for the subtitle */
+        .title-container {
+            text-align: center;
+        }
+
+        .subtitle {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-actions">
-            <h1>Tính Tiền Lương</h1>
+            <div class="title-container">
+                <h1>Tính Tiền Lương</h1>
+                <div class="subtitle">by NOVA VISION</div>
+            </div>
             <button id="history-btn" class="btn history-btn">
-                <i class="fas fa-history"></i> Lịch Sử Tính Lương
+                <i class="fas fa-history"></i> Lịch Sử
             </button>
         </div>
         
@@ -462,7 +485,7 @@
     <!-- History Drawer -->
     <div id="history-drawer" class="drawer">
         <div class="drawer-header">
-            <h3>Lịch Sử Tính Lương</h3>
+            <h3>Lịch Sử</h3>
             <button id="drawer-close" class="drawer-close">
                 <i class="fas fa-times"></i>
             </button>
@@ -475,6 +498,9 @@
 
     <div id="backdrop" class="backdrop"></div>
 
+    <!-- Thêm file dữ liệu lịch sử -->
+    <script src="salary-history-data.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Cache keys
@@ -571,7 +597,7 @@
                             <div class="input-group">
                                 <label for="member-expenses-${index}">Số tiền đã chi (VNĐ)</label>
                                 <input type="text" id="member-expenses-${index}" class="member-expenses currency-input" 
-                                    placeholder="Nhập số tiền đã chi..." value="${member.expenses ? formatDisplayNumber(member.expenses) : ''}">
+                                    placeholder="Nhập số tiền hoặc công thức (VD: 1000000+500000)..." value="${member.expenses || ''}">
                             </div>
                         </div>
                     `;
@@ -600,6 +626,14 @@
             }
             
             function formatCurrencyInput() {
+                // Check if the input contains formula operators
+                if (this.value.includes('+') || this.value.includes('-') || 
+                    this.value.includes('*') || this.value.includes('/') ||
+                    this.value.includes('(') || this.value.includes(')')) {
+                    // If it's a formula, don't format it
+                    return;
+                }
+                
                 // Get the raw input value and remove all non-digit characters
                 let value = this.value.replace(/\D/g, '');
                 
@@ -622,8 +656,49 @@
             }
             
             function parseCurrencyValue(formattedValue) {
+                // Check if the input contains formula operators
+                if (typeof formattedValue === 'string' && 
+                   (formattedValue.includes('+') || formattedValue.includes('-') || 
+                    formattedValue.includes('*') || formattedValue.includes('/') ||
+                    formattedValue.includes('(') || formattedValue.includes(')'))) {
+                    // If it's a formula, evaluate it
+                    try {
+                        return evaluateFormula(formattedValue);
+                    } catch (error) {
+                        console.error('Formula evaluation error:', error);
+                        return 0;
+                    }
+                }
+                
                 // Remove all non-digit characters and parse as integer
                 return parseInt(String(formattedValue).replace(/\D/g, ''), 10) || 0;
+            }
+            
+            // New function to evaluate mathematical expressions
+            function evaluateFormula(formula) {
+                // Replace all number formats (e.g., "1.000.000" to "1000000")
+                let cleanFormula = formula.replace(/(\d+)\.(?=\d{3})/g, '$1');
+                while (cleanFormula !== (cleanFormula = cleanFormula.replace(/(\d+)\.(?=\d{3})/g, '$1')));
+                
+                // Replace Vietnamese decimal comma with dot if present
+                cleanFormula = cleanFormula.replace(/,/g, '.');
+                
+                // Validate the formula to prevent code injection
+                if (!/^[\d\s\.\+\-\*\/\(\)]+$/.test(cleanFormula)) {
+                    throw new Error('Invalid formula: contains disallowed characters');
+                }
+                
+                // Evaluate the formula
+                try {
+                    // Use Function instead of eval for better security
+                    const result = new Function('return ' + cleanFormula)();
+                    
+                    // Round to nearest integer
+                    return Math.round(result);
+                } catch (error) {
+                    console.error('Error evaluating formula:', error);
+                    throw error;
+                }
             }
             
             function addMember() {
@@ -647,8 +722,11 @@
                 const field = parts[1];
                 const index = parseInt(parts[2]);
                 
-                // For currency fields, parse the formatted value
-                if (field === 'expenses' || id === 'total-revenue') {
+                // For currency fields, store the raw input value
+                if (field === 'expenses') {
+                    // Store the raw input value for expenses (could be a formula or a number)
+                    members[index][field] = this.value;
+                } else if (id === 'total-revenue') {
                     members[index][field] = parseCurrencyValue(this.value);
                 } else {
                     members[index][field] = this.value;
@@ -679,14 +757,19 @@
                     if (nameInput && percentageInput && expensesInput) {
                         const name = nameInput.value.trim();
                         const percentage = parseFloat(percentageInput.value) || 0;
-                        const expenses = parseCurrencyValue(expensesInput.value) || 0;
+                        
+                        // Get the raw expenses value (could be a formula or formatted number)
+                        const rawExpenses = expensesInput.value;
+                        // Parse the expenses value (evaluates formula if present)
+                        const expenses = parseCurrencyValue(rawExpenses) || 0;
                         
                         // Only include members with percentage filled out
                         if (percentage > 0) {
                             activeMembers.push({
                                 name: name || `Thành viên ${index + 1}`,
                                 percentage: percentage,
-                                expenses: expenses
+                                expenses: expenses,
+                                rawExpenses: rawExpenses // Store the raw input for reference
                             });
                         }
                     }
@@ -835,230 +918,90 @@
                     results: currentResults
                 };
                 
-                // Convert to JSON string
-                const jsonData = JSON.stringify(exportData, null, 2);
+                // Tạo chuỗi JSON để người dùng có thể thêm vào file salary-history-data.js
+                // Thêm dấu phẩy trước JSON data
+                const dataForHistoryFile = ",\n" + JSON.stringify(exportData, null, 4);
                 
-                // Create file for download
-                const blob = new Blob([jsonData], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                // Create download link and trigger click
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `tinh_luong_${fileDate}.json`;
-                document.body.appendChild(a);
-                a.click();
-                
-                // Clean up
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }, 100);
-                
-                alert('Đã xuất kết quả thành công! Vui lòng lưu file trong thư mục exports.');
-                
-                // Add the new export to our history data and refresh the history list
-                historyData.push({
-                    fileName: `tinh_luong_${fileDate}.json`,
-                    data: exportData
-                });
-                loadHistoryList();
+                // Copy to clipboard
+                try {
+                    navigator.clipboard.writeText(dataForHistoryFile).then(() => {
+                        // Thêm dữ liệu mới vào historyData
+                        addNewHistoryData(exportData);
+                        
+                        // Hiển thị thông báo thành công
+                        alert(`Đã sao chép kết quả vào clipboard!\n\n` +
+                            `Để thêm dữ liệu này vào lịch sử, hãy mở file salary-history-data.js và dán đoạn mã đã sao chép vào mảng SALARY_HISTORY_DATA.`);
+                    }).catch(err => {
+                        console.error('Không thể sao chép vào clipboard: ', err);
+                        fallbackCopyToClipboard(dataForHistoryFile);
+                    });
+                } catch (err) {
+                    console.error('Lỗi khi sao chép vào clipboard: ', err);
+                    fallbackCopyToClipboard(dataForHistoryFile);
+                }
             }
             
-            // Replace file selection with direct loading from exports
+            // Hàm hỗ trợ sao chép vào clipboard cho các trình duyệt không hỗ trợ Clipboard API
+            function fallbackCopyToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                
+                // Ẩn textarea khỏi view
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        // Thêm dữ liệu mới vào historyData nếu sao chép thành công
+                        const exportData = JSON.parse(text.substring(2)); // Bỏ dấu phẩy và dòng mới
+                        addNewHistoryData(exportData);
+                        
+                        alert(`Đã sao chép kết quả vào clipboard!\n\n` +
+                            `Để thêm dữ liệu này vào lịch sử, hãy mở file salary-history-data.js và dán đoạn mã đã sao chép vào mảng SALARY_HISTORY_DATA.`);
+                    } else {
+                        alert('Không thể sao chép vào clipboard. Vui lòng thử lại hoặc sao chép thủ công.');
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi sử dụng execCommand: ', err);
+                    alert('Không thể sao chép vào clipboard. Vui lòng thử lại hoặc sao chép thủ công.');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+            
+            // Replace loadHistoryFromExports function
             function loadHistoryFromExports() {
-                // In a browser environment, we can't directly access the file system without user interaction
-                // For this implementation, we'll simulate loading by adding our known export files
-
                 // Clear history data
                 historyData = [];
 
-                // Sample data for demonstration - these represent the files in the exports folder
-                const sampleFiles = [
-                    // First sample file
-                    {
-                        fileName: 'tinh_luong_sample.json',
-                        data: {
-                            exportDate: "01/04/2023 10:15",
-                            exportMonth: "04",
-                            exportYear: "2023",
-                            totalRevenue: 50000000,
-                            totalExpenses: 10000000,
-                            results: [
-                                {
-                                    name: "Nguyễn Văn A",
-                                    percentage: 30,
-                                    expenses: 4000000,
-                                    percentageAmount: 15000000,
-                                    expensesShare: 2500000,
-                                    finalAmount: 16500000
-                                },
-                                {
-                                    name: "Trần Thị B",
-                                    percentage: 25,
-                                    expenses: 3000000,
-                                    percentageAmount: 12500000,
-                                    expensesShare: 2500000,
-                                    finalAmount: 13000000
-                                },
-                                {
-                                    name: "Lê Văn C",
-                                    percentage: 20,
-                                    expenses: 2000000,
-                                    percentageAmount: 10000000,
-                                    expensesShare: 2500000,
-                                    finalAmount: 9500000
-                                },
-                                {
-                                    name: "Phạm Thị D",
-                                    percentage: 25,
-                                    expenses: 1000000,
-                                    percentageAmount: 12500000,
-                                    expensesShare: 2500000,
-                                    finalAmount: 11000000
-                                }
-                            ]
-                        }
-                    },
-                    // Second sample file
-                    {
-                        fileName: 'tinh_luong_sample2.json',
-                        data: {
-                            exportDate: "10/05/2023 15:30",
-                            exportMonth: "05",
-                            exportYear: "2023",
-                            totalRevenue: 60000000,
-                            totalExpenses: 12000000,
-                            results: [
-                                {
-                                    name: "Nguyễn Văn A",
-                                    percentage: 30,
-                                    expenses: 5000000,
-                                    percentageAmount: 18000000,
-                                    expensesShare: 3000000,
-                                    finalAmount: 20000000
-                                },
-                                {
-                                    name: "Trần Thị B",
-                                    percentage: 25,
-                                    expenses: 3500000,
-                                    percentageAmount: 15000000,
-                                    expensesShare: 3000000,
-                                    finalAmount: 15500000
-                                },
-                                {
-                                    name: "Lê Văn C",
-                                    percentage: 20,
-                                    expenses: 2500000,
-                                    percentageAmount: 12000000,
-                                    expensesShare: 3000000,
-                                    finalAmount: 11500000
-                                },
-                                {
-                                    name: "Phạm Thị D",
-                                    percentage: 25,
-                                    expenses: 1000000,
-                                    percentageAmount: 15000000,
-                                    expensesShare: 3000000,
-                                    finalAmount: 13000000
-                                }
-                            ]
-                        }
-                    },
-                    // Sample file for March 15, 2025
-                    {
-                        fileName: 'tinh_luong_20250315_2302.json',
-                        data: {
-                            exportDate: "15/03/2025 23:02",
-                            exportMonth: "03",
-                            exportYear: "2025",
-                            totalRevenue: 70000000,
-                            totalExpenses: 15000000,
-                            results: [
-                                {
-                                    name: "Nguyễn Văn A",
-                                    percentage: 30,
-                                    expenses: 6000000,
-                                    percentageAmount: 21000000,
-                                    expensesShare: 3750000,
-                                    finalAmount: 23250000
-                                },
-                                {
-                                    name: "Trần Thị B",
-                                    percentage: 25,
-                                    expenses: 4000000,
-                                    percentageAmount: 17500000,
-                                    expensesShare: 3750000,
-                                    finalAmount: 17750000
-                                },
-                                {
-                                    name: "Lê Văn C",
-                                    percentage: 20,
-                                    expenses: 3000000,
-                                    percentageAmount: 14000000,
-                                    expensesShare: 3750000,
-                                    finalAmount: 13250000
-                                },
-                                {
-                                    name: "Phạm Thị D",
-                                    percentage: 25,
-                                    expenses: 2000000,
-                                    percentageAmount: 17500000,
-                                    expensesShare: 3750000,
-                                    finalAmount: 15750000
-                                }
-                            ]
-                        }
-                    },
-                    // Another sample file for March 15, 2025
-                    {
-                        fileName: 'tinh_luong_20250315_2300.json',
-                        data: {
-                            exportDate: "15/03/2025 23:00",
-                            exportMonth: "03",
-                            exportYear: "2025",
-                            totalRevenue: 65000000,
-                            totalExpenses: 13000000,
-                            results: [
-                                {
-                                    name: "Nguyễn Văn A",
-                                    percentage: 30,
-                                    expenses: 5500000,
-                                    percentageAmount: 19500000,
-                                    expensesShare: 3250000,
-                                    finalAmount: 21750000
-                                },
-                                {
-                                    name: "Trần Thị B",
-                                    percentage: 25,
-                                    expenses: 3500000,
-                                    percentageAmount: 16250000,
-                                    expensesShare: 3250000,
-                                    finalAmount: 16500000
-                                },
-                                {
-                                    name: "Lê Văn C",
-                                    percentage: 20,
-                                    expenses: 2500000,
-                                    percentageAmount: 13000000,
-                                    expensesShare: 3250000,
-                                    finalAmount: 12250000
-                                },
-                                {
-                                    name: "Phạm Thị D",
-                                    percentage: 25,
-                                    expenses: 1500000,
-                                    percentageAmount: 16250000,
-                                    expensesShare: 3250000,
-                                    finalAmount: 14500000
-                                }
-                            ]
-                        }
-                    }
-                ];
-
-                // Add sample files to history data
-                historyData = sampleFiles;
+                // Sử dụng dữ liệu từ file salary-history-data.js
+                if (typeof SALARY_HISTORY_DATA !== 'undefined' && Array.isArray(SALARY_HISTORY_DATA)) {
+                    // Chuyển đổi dữ liệu từ SALARY_HISTORY_DATA sang định dạng historyData
+                    SALARY_HISTORY_DATA.forEach((data, index) => {
+                        // Tạo fileName dựa trên thông tin ngày tháng
+                        const month = data.exportMonth;
+                        const year = data.exportYear;
+                        const date = data.exportDate.split(' ')[0].split('/')[0];
+                        const time = data.exportDate.split(' ')[1].replace(':', '');
+                        
+                        const fileName = `tinh_luong_${year}${month}${date}_${time}.json`;
+                        
+                        historyData.push({
+                            fileName: fileName,
+                            data: data
+                        });
+                    });
+                    
+                    console.log('Đã tải ' + historyData.length + ' bản ghi lịch sử từ file dữ liệu');
+                } else {
+                    console.warn('Không tìm thấy dữ liệu SALARY_HISTORY_DATA hoặc dữ liệu không phải là mảng');
+                }
                 
                 // Update the history list
                 loadHistoryList();
@@ -1252,6 +1195,26 @@
             
             // Listen for hash changes
             window.addEventListener('hashchange', checkUrlHash);
+            
+            // Thêm hàm để lưu dữ liệu mới vào historyData
+            function addNewHistoryData(data) {
+                // Tạo fileName dựa trên thông tin ngày tháng
+                const month = data.exportMonth;
+                const year = data.exportYear;
+                const date = data.exportDate.split(' ')[0].split('/')[0];
+                const time = data.exportDate.split(' ')[1].replace(':', '');
+                
+                const fileName = `tinh_luong_${year}${month}${date}_${time}.json`;
+                
+                // Thêm vào historyData
+                historyData.push({
+                    fileName: fileName,
+                    data: data
+                });
+                
+                // Cập nhật danh sách lịch sử
+                loadHistoryList();
+            }
         });
     </script>
 </body>
