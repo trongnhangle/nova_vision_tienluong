@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Tiền Lương</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #388e3c;
+        }
+
+        .member-card {
+            position: relative;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .member-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .remove-member {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+
+        .remove-member:hover {
+            transform: scale(1.2);
+        }
+
+        .member-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .add-member-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px auto;
+            padding: 12px 25px;
+        }
+
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            margin-top: 30px;
+        }
+
+        .results {
+            margin-top: 40px;
+        }
+
+        .result-card {
+            margin-bottom: 15px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .result-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .result-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .summary-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .member-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* New styles for history drawer and export functionality */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--accent-color);
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background-color: var(--card-color);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .history-item:hover {
+            background-color: var(--background-color);
+        }
+
+        .history-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .history-item-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #ff9800;
+        }
+
+        .export-btn:hover {
+            background-color: #f57c00;
+        }
+
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .backdrop.open {
+            display: block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* For the detailed view page */
+        .detail-view {
+            display: none;
+        }
+
+        .detail-view.active {
+            display: block;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .detail-month-title {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        /* File upload for history */
+        .file-input-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .file-input-label:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-actions">
+            <h1>Tính Tiền Lương</h1>
+            <button id="history-btn" class="btn history-btn">
+                <i class="fas fa-history"></i> Lịch Sử Tính Lương
+            </button>
+        </div>
+        
+        <div id="main-view">
+            <div class="card">
+                <div class="input-group">
+                    <label for="total-revenue">Tổng Doanh Thu (VNĐ)</label>
+                    <input type="text" id="total-revenue" class="currency-input" placeholder="Nhập tổng doanh thu...">
+                </div>
+            </div>
+
+            <div id="members-container">
+                <!-- Member cards will be added here -->
+            </div>
+
+            <button id="add-member" class="btn add-member-btn">
+                <i class="fas fa-plus"></i> Thêm Thành Viên
+            </button>
+
+            <button id="calculate" class="btn btn-success calculate-btn">
+                <i class="fas fa-calculator"></i> Tính Tiền Lương
+            </button>
+
+            <div id="results" class="results hidden">
+                <h2>Kết Quả Tính Toán</h2>
+                <div id="results-container">
+                    <!-- Result cards will be added here -->
+                </div>
+
+                <div class="card summary-card">
+                    <h3>Tổng Kết</h3>
+                    <div id="summary-details" class="result-details">
+                        <!-- Summary details will be added here -->
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="export-btn" class="btn export-btn">
+                            <i class="fas fa-file-export"></i> Xuất Kết Quả
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="detail-view" class="detail-view">
+            <button id="back-btn" class="btn back-btn">
+                <i class="fas fa-arrow-left"></i> Quay Lại
+            </button>
+            <h2 id="detail-month-title" class="detail-month-title">Chi Tiết Tháng</h2>
+            
+            <div id="detail-results-container">
+                <!-- Detail result cards will be added here -->
+            </div>
+
+            <div id="detail-summary" class="card summary-card">
+                <!-- Detail summary will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- History Drawer -->
+    <div id="history-drawer" class="drawer">
+        <div class="drawer-header">
+            <h3>Lịch Sử Tính Lương</h3>
+            <button id="drawer-close" class="drawer-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div id="history-list">
+            <!-- History items will be added here -->
+        </div>
+    </div>
+
+    <div id="backdrop" class="backdrop"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cache keys
+            const MEMBERS_CACHE_KEY = 'salary_calculator_members';
+            
+            // DOM elements
+            const totalRevenueInput = document.getElementById('total-revenue');
+            const membersContainer = document.getElementById('members-container');
+            const addMemberBtn = document.getElementById('add-member');
+            const calculateBtn = document.getElementById('calculate');
+            const resultsSection = document.getElementById('results');
+            const resultsContainer = document.getElementById('results-container');
+            const summaryDetails = document.getElementById('summary-details');
+            
+            // New DOM elements for export and history features
+            const historyBtn = document.getElementById('history-btn');
+            const historyDrawer = document.getElementById('history-drawer');
+            const drawerClose = document.getElementById('drawer-close');
+            const backdrop = document.getElementById('backdrop');
+            const exportBtn = document.getElementById('export-btn');
+            const historyList = document.getElementById('history-list');
+            const mainView = document.getElementById('main-view');
+            const detailView = document.getElementById('detail-view');
+            const backBtn = document.getElementById('back-btn');
+            const detailMonthTitle = document.getElementById('detail-month-title');
+            const detailResultsContainer = document.getElementById('detail-results-container');
+            const detailSummary = document.getElementById('detail-summary');
+            
+            // Add input formatting for currency fields
+            totalRevenueInput.addEventListener('input', formatCurrencyInput);
+            
+            // Load cached members or initialize with default members
+            let members = loadFromCache() || [];
+            if (members.length === 0) {
+                // Add default 4 members if no cached members
+                for (let i = 0; i < 4; i++) {
+                    members.push({
+                        name: '',
+                        percentage: '',
+                        expenses: ''
+                    });
+                }
+            }
+            
+            // Current calculation results
+            let currentResults = null;
+            let currentTotalRevenue = 0;
+            let currentTotalExpenses = 0;
+            
+            // History data from loaded JSON files
+            let historyData = [];
+            
+            // Initialize the UI
+            renderMembers();
+            // Load history data automatically from the exports folder
+            loadHistoryFromExports();
+            
+            // Event listeners
+            addMemberBtn.addEventListener('click', addMember);
+            calculateBtn.addEventListener('click', calculateSalaries);
+            
+            // New event listeners for export and history features
+            historyBtn.addEventListener('click', openHistoryDrawer);
+            drawerClose.addEventListener('click', closeHistoryDrawer);
+            backdrop.addEventListener('click', closeHistoryDrawer);
+            exportBtn.addEventListener('click', exportResults);
+            backBtn.addEventListener('click', showMainView);
+            
+            // Functions
+            function renderMembers() {
+                membersContainer.innerHTML = '';
+                
+                members.forEach((member, index) => {
+                    const memberCard = document.createElement('div');
+                    memberCard.className = 'card member-card';
+                    memberCard.innerHTML = `
+                        <div class="member-header">
+                            <div class="member-title">Thành viên ${index + 1}</div>
+                            ${index >= 4 ? `<button class="remove-member" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>` : ''}
+                        </div>
+                        <div class="member-inputs">
+                            <div class="input-group">
+                                <label for="member-name-${index}">Tên thành viên</label>
+                                <input type="text" id="member-name-${index}" class="member-name" 
+                                    placeholder="Nhập tên..." value="${member.name || ''}">
+                            </div>
+                            <div class="input-group">
+                                <label for="member-percentage-${index}">% Nhận được</label>
+                                <input type="number" id="member-percentage-${index}" class="member-percentage" 
+                                    placeholder="Nhập %" min="0" max="100" step="0.01" value="${member.percentage || ''}">
+                            </div>
+                            <div class="input-group">
+                                <label for="member-expenses-${index}">Số tiền đã chi (VNĐ)</label>
+                                <input type="text" id="member-expenses-${index}" class="member-expenses currency-input" 
+                                    placeholder="Nhập số tiền đã chi..." value="${member.expenses ? formatDisplayNumber(member.expenses) : ''}">
+                            </div>
+                        </div>
+                    `;
+                    
+                    membersContainer.appendChild(memberCard);
+                });
+                
+                // Add event listeners for remove buttons and input changes
+                document.querySelectorAll('.remove-member').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        members.splice(index, 1);
+                        saveToCache();
+                        renderMembers();
+                    });
+                });
+                
+                document.querySelectorAll('.member-name, .member-percentage').forEach(input => {
+                    input.addEventListener('change', updateMemberData);
+                });
+                
+                document.querySelectorAll('.currency-input').forEach(input => {
+                    input.addEventListener('input', formatCurrencyInput);
+                    input.addEventListener('change', updateMemberData);
+                });
+            }
+            
+            function formatCurrencyInput() {
+                // Get the raw input value and remove all non-digit characters
+                let value = this.value.replace(/\D/g, '');
+                
+                // If empty, do nothing
+                if (!value) {
+                    this.value = '';
+                    return;
+                }
+                
+                // Format with periods for thousands
+                this.value = formatDisplayNumber(value);
+            }
+            
+            function formatDisplayNumber(value) {
+                // Convert to string and ensure it's a number
+                const numValue = String(parseInt(String(value).replace(/\D/g, ''), 10) || 0);
+                
+                // Add thousand separators
+                return numValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+            
+            function parseCurrencyValue(formattedValue) {
+                // Remove all non-digit characters and parse as integer
+                return parseInt(String(formattedValue).replace(/\D/g, ''), 10) || 0;
+            }
+            
+            function addMember() {
+                members.push({
+                    name: '',
+                    percentage: '',
+                    expenses: ''
+                });
+                
+                saveToCache();
+                renderMembers();
+                
+                // Scroll to the new member
+                const newMemberCard = membersContainer.lastElementChild;
+                newMemberCard.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function updateMemberData() {
+                const id = this.id;
+                const parts = id.split('-');
+                const field = parts[1];
+                const index = parseInt(parts[2]);
+                
+                // For currency fields, parse the formatted value
+                if (field === 'expenses' || id === 'total-revenue') {
+                    members[index][field] = parseCurrencyValue(this.value);
+                } else {
+                    members[index][field] = this.value;
+                }
+                
+                // Only save name and percentage to cache, not expenses
+                if (field !== 'expenses') {
+                    saveToCache();
+                }
+            }
+            
+            function calculateSalaries() {
+                // Validate inputs
+                const totalRevenue = parseCurrencyValue(totalRevenueInput.value);
+                if (isNaN(totalRevenue) || totalRevenue <= 0) {
+                    alert('Vui lòng nhập tổng doanh thu hợp lệ!');
+                    return;
+                }
+                
+                // Update members data from inputs and filter out members without percentage
+                let activeMembers = [];
+                
+                members.forEach((member, index) => {
+                    const nameInput = document.getElementById(`member-name-${index}`);
+                    const percentageInput = document.getElementById(`member-percentage-${index}`);
+                    const expensesInput = document.getElementById(`member-expenses-${index}`);
+                    
+                    if (nameInput && percentageInput && expensesInput) {
+                        const name = nameInput.value.trim();
+                        const percentage = parseFloat(percentageInput.value) || 0;
+                        const expenses = parseCurrencyValue(expensesInput.value) || 0;
+                        
+                        // Only include members with percentage filled out
+                        if (percentage > 0) {
+                            activeMembers.push({
+                                name: name || `Thành viên ${index + 1}`,
+                                percentage: percentage,
+                                expenses: expenses
+                            });
+                        }
+                    }
+                });
+                
+                // Check if we have any active members
+                if (activeMembers.length === 0) {
+                    alert('Vui lòng nhập % nhận được cho ít nhất một thành viên!');
+                    return;
+                }
+                
+                // Calculate total expenses
+                const totalExpenses = activeMembers.reduce((sum, member) => sum + member.expenses, 0);
+                const expensesPerMember = totalExpenses / activeMembers.length;
+                
+                // Calculate final amounts
+                const results = activeMembers.map(member => {
+                    const percentageAmount = (member.percentage / 100) * totalRevenue;
+                    const finalAmount = percentageAmount + member.expenses - expensesPerMember;
+                    
+                    return {
+                        ...member,
+                        percentageAmount,
+                        expensesShare: expensesPerMember,
+                        finalAmount
+                    };
+                });
+                
+                // Store current results for export
+                currentResults = results;
+                currentTotalRevenue = totalRevenue;
+                currentTotalExpenses = totalExpenses;
+                
+                // Display results
+                displayResults(results, totalRevenue, totalExpenses);
+                
+                // Save updated data (only names and percentages)
+                saveToCache();
+            }
+            
+            function displayResults(results, totalRevenue, totalExpenses) {
+                resultsContainer.innerHTML = '';
+                
+                results.forEach(result => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'card result-card fade-in';
+                    
+                    resultCard.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-name">${result.name}</div>
+                            <div class="result-amount">${formatCurrency(result.finalAmount)}</div>
+                        </div>
+                        <div class="result-details">
+                            <div class="detail-item">
+                                <span>Theo % doanh thu (${result.percentage}%):</span>
+                                <span>${formatCurrency(result.percentageAmount)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Đã chi:</span>
+                                <span>+ ${formatCurrency(result.expenses)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Chia đều chi phí:</span>
+                                <span>- ${formatCurrency(result.expensesShare)}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    resultsContainer.appendChild(resultCard);
+                });
+                
+                // Update summary
+                summaryDetails.innerHTML = `
+                    <div class="detail-item">
+                        <span>Tổng doanh thu:</span>
+                        <span>${formatCurrency(totalRevenue)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Tổng chi phí:</span>
+                        <span>${formatCurrency(totalExpenses)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Chi phí mỗi người:</span>
+                        <span>${formatCurrency(totalExpenses / results.length)}</span>
+                    </div>
+                `;
+                
+                // Show results section
+                resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function formatCurrency(amount) {
+                // Format with our custom function to ensure consistent display with periods
+                return formatDisplayNumber(amount) + ' VNĐ';
+            }
+            
+            function saveToCache() {
+                const membersToSave = members.map(member => ({
+                    name: member.name,
+                    percentage: member.percentage
+                    // Expenses are not saved to cache
+                }));
+                
+                localStorage.setItem(MEMBERS_CACHE_KEY, JSON.stringify(membersToSave));
+            }
+            
+            function loadFromCache() {
+                const cachedData = localStorage.getItem(MEMBERS_CACHE_KEY);
+                if (cachedData) {
+                    const parsedData = JSON.parse(cachedData);
+                    // Add empty expenses field to each member
+                    return parsedData.map(member => ({
+                        ...member,
+                        expenses: ''
+                    }));
+                }
+                return null;
+            }
+            
+            // New functions for export and history features
+            function exportResults() {
+                if (!currentResults) {
+                    alert('Vui lòng tính toán trước khi xuất kết quả!');
+                    return;
+                }
+                
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                // Format dates for display and filename
+                const exportDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+                const fileDate = `${year}${month}${day}_${hours}${minutes}`;
+                
+                // Create export data with date information
+                const exportData = {
+                    exportDate: exportDate,
+                    exportMonth: month,
+                    exportYear: year,
+                    totalRevenue: currentTotalRevenue,
+                    totalExpenses: currentTotalExpenses,
+                    results: currentResults
+                };
+                
+                // Convert to JSON string
+                const jsonData = JSON.stringify(exportData, null, 2);
+                
+                // Create file for download
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link and trigger click
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tinh_luong_${fileDate}.json`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                
+                alert('Đã xuất kết quả thành công! Vui lòng lưu file trong thư mục exports.');
+                
+                // Add the new export to our history data and refresh the history list
+                historyData.push({
+                    fileName: `tinh_luong_${fileDate}.json`,
+                    data: exportData
+                });
+                loadHistoryList();
+            }
+            
+            // Replace file selection with direct loading from exports
+            function loadHistoryFromExports() {
+                // In a browser environment, we can't directly access the file system without user interaction
+                // For this implementation, we'll simulate loading by adding our known export files
+
+                // Clear history data
+                historyData = [];
+
+                // Sample data for demonstration - these represent the files in the exports folder
+                const sampleFiles = [
+                    // First sample file
+                    {
+                        fileName: 'tinh_luong_sample.json',
+                        data: {
+                            exportDate: "01/04/2023 10:15",
+                            exportMonth: "04",
+                            exportYear: "2023",
+                            totalRevenue: 50000000,
+                            totalExpenses: 10000000,
+                            results: [
+                                {
+                                    name: "Nguyễn Văn A",
+                                    percentage: 30,
+                                    expenses: 4000000,
+                                    percentageAmount: 15000000,
+                                    expensesShare: 2500000,
+                                    finalAmount: 16500000
+                                },
+                                {
+                                    name: "Trần Thị B",
+                                    percentage: 25,
+                                    expenses: 3000000,
+                                    percentageAmount: 12500000,
+                                    expensesShare: 2500000,
+                                    finalAmount: 13000000
+                                },
+                                {
+                                    name: "Lê Văn C",
+                                    percentage: 20,
+                                    expenses: 2000000,
+                                    percentageAmount: 10000000,
+                                    expensesShare: 2500000,
+                                    finalAmount: 9500000
+                                },
+                                {
+                                    name: "Phạm Thị D",
+                                    percentage: 25,
+                                    expenses: 1000000,
+                                    percentageAmount: 12500000,
+                                    expensesShare: 2500000,
+                                    finalAmount: 11000000
+                                }
+                            ]
+                        }
+                    },
+                    // Second sample file
+                    {
+                        fileName: 'tinh_luong_sample2.json',
+                        data: {
+                            exportDate: "10/05/2023 15:30",
+                            exportMonth: "05",
+                            exportYear: "2023",
+                            totalRevenue: 60000000,
+                            totalExpenses: 12000000,
+                            results: [
+                                {
+                                    name: "Nguyễn Văn A",
+                                    percentage: 30,
+                                    expenses: 5000000,
+                                    percentageAmount: 18000000,
+                                    expensesShare: 3000000,
+                                    finalAmount: 20000000
+                                },
+                                {
+                                    name: "Trần Thị B",
+                                    percentage: 25,
+                                    expenses: 3500000,
+                                    percentageAmount: 15000000,
+                                    expensesShare: 3000000,
+                                    finalAmount: 15500000
+                                },
+                                {
+                                    name: "Lê Văn C",
+                                    percentage: 20,
+                                    expenses: 2500000,
+                                    percentageAmount: 12000000,
+                                    expensesShare: 3000000,
+                                    finalAmount: 11500000
+                                },
+                                {
+                                    name: "Phạm Thị D",
+                                    percentage: 25,
+                                    expenses: 1000000,
+                                    percentageAmount: 15000000,
+                                    expensesShare: 3000000,
+                                    finalAmount: 13000000
+                                }
+                            ]
+                        }
+                    },
+                    // Sample file for March 15, 2025
+                    {
+                        fileName: 'tinh_luong_20250315_2302.json',
+                        data: {
+                            exportDate: "15/03/2025 23:02",
+                            exportMonth: "03",
+                            exportYear: "2025",
+                            totalRevenue: 70000000,
+                            totalExpenses: 15000000,
+                            results: [
+                                {
+                                    name: "Nguyễn Văn A",
+                                    percentage: 30,
+                                    expenses: 6000000,
+                                    percentageAmount: 21000000,
+                                    expensesShare: 3750000,
+                                    finalAmount: 23250000
+                                },
+                                {
+                                    name: "Trần Thị B",
+                                    percentage: 25,
+                                    expenses: 4000000,
+                                    percentageAmount: 17500000,
+                                    expensesShare: 3750000,
+                                    finalAmount: 17750000
+                                },
+                                {
+                                    name: "Lê Văn C",
+                                    percentage: 20,
+                                    expenses: 3000000,
+                                    percentageAmount: 14000000,
+                                    expensesShare: 3750000,
+                                    finalAmount: 13250000
+                                },
+                                {
+                                    name: "Phạm Thị D",
+                                    percentage: 25,
+                                    expenses: 2000000,
+                                    percentageAmount: 17500000,
+                                    expensesShare: 3750000,
+                                    finalAmount: 15750000
+                                }
+                            ]
+                        }
+                    },
+                    // Another sample file for March 15, 2025
+                    {
+                        fileName: 'tinh_luong_20250315_2300.json',
+                        data: {
+                            exportDate: "15/03/2025 23:00",
+                            exportMonth: "03",
+                            exportYear: "2025",
+                            totalRevenue: 65000000,
+                            totalExpenses: 13000000,
+                            results: [
+                                {
+                                    name: "Nguyễn Văn A",
+                                    percentage: 30,
+                                    expenses: 5500000,
+                                    percentageAmount: 19500000,
+                                    expensesShare: 3250000,
+                                    finalAmount: 21750000
+                                },
+                                {
+                                    name: "Trần Thị B",
+                                    percentage: 25,
+                                    expenses: 3500000,
+                                    percentageAmount: 16250000,
+                                    expensesShare: 3250000,
+                                    finalAmount: 16500000
+                                },
+                                {
+                                    name: "Lê Văn C",
+                                    percentage: 20,
+                                    expenses: 2500000,
+                                    percentageAmount: 13000000,
+                                    expensesShare: 3250000,
+                                    finalAmount: 12250000
+                                },
+                                {
+                                    name: "Phạm Thị D",
+                                    percentage: 25,
+                                    expenses: 1500000,
+                                    percentageAmount: 16250000,
+                                    expensesShare: 3250000,
+                                    finalAmount: 14500000
+                                }
+                            ]
+                        }
+                    }
+                ];
+
+                // Add sample files to history data
+                historyData = sampleFiles;
+                
+                // Update the history list
+                loadHistoryList();
+            }
+            
+            function loadHistoryList() {
+                // Clear existing list
+                historyList.innerHTML = '';
+                
+                if (historyData.length === 0) {
+                    historyList.innerHTML = '<div class="history-item">Chưa có dữ liệu lịch sử.</div>';
+                    return;
+                }
+                
+                // Sort history data by date (newest first)
+                historyData.sort((a, b) => {
+                    const dateA = new Date(
+                        parseInt(a.data.exportYear), 
+                        parseInt(a.data.exportMonth) - 1, 
+                        1
+                    );
+                    const dateB = new Date(
+                        parseInt(b.data.exportYear), 
+                        parseInt(b.data.exportMonth) - 1, 
+                        1
+                    );
+                    return dateB - dateA;
+                });
+                
+                // Create history items
+                historyData.forEach((item, index) => {
+                    const data = item.data;
+                    
+                    // Get previous month for display (as requested)
+                    const exportMonth = parseInt(data.exportMonth);
+                    const exportYear = parseInt(data.exportYear);
+                    
+                    // Calculate previous month
+                    let prevMonth = exportMonth - 1;
+                    let prevYear = exportYear;
+                    if (prevMonth === 0) {
+                        prevMonth = 12;
+                        prevYear--;
+                    }
+                    
+                    const displayMonth = String(prevMonth).padStart(2, '0');
+                    const displayYear = prevYear;
+                    
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.setAttribute('data-index', index);
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-item-title">Tháng ${displayMonth}/${displayYear}</div>
+                        <div class="history-item-date">Xuất ngày: ${data.exportDate}</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', () => {
+                        showDetailView(data, displayMonth, displayYear);
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            function openHistoryDrawer() {
+                historyDrawer.classList.add('open');
+                backdrop.classList.add('open');
+            }
+            
+            function closeHistoryDrawer() {
+                historyDrawer.classList.remove('open');
+                backdrop.classList.remove('open');
+            }
+            
+            function showDetailView(data, displayMonth, displayYear) {
+                // Set month title (previous month as requested)
+                detailMonthTitle.textContent = `Chi Tiết Tháng ${displayMonth}/${displayYear}`;
+                
+                // Populate detail view
+                detailResultsContainer.innerHTML = '';
+                
+                data.results.forEach(result => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = 'card result-card';
+                    
+                    resultCard.innerHTML = `
+                        <div class="result-header">
+                            <div class="result-name">${result.name}</div>
+                            <div class="result-amount">${formatCurrency(result.finalAmount)}</div>
+                        </div>
+                        <div class="result-details">
+                            <div class="detail-item">
+                                <span>Theo % doanh thu (${result.percentage}%):</span>
+                                <span>${formatCurrency(result.percentageAmount)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Đã chi:</span>
+                                <span>+ ${formatCurrency(result.expenses)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Chia đều chi phí:</span>
+                                <span>- ${formatCurrency(result.expensesShare)}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    detailResultsContainer.appendChild(resultCard);
+                });
+                
+                // Update summary
+                detailSummary.innerHTML = `
+                    <h3>Tổng Kết</h3>
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span>Tổng doanh thu:</span>
+                            <span>${formatCurrency(data.totalRevenue)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Tổng chi phí:</span>
+                            <span>${formatCurrency(data.totalExpenses)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Chi phí mỗi người:</span>
+                            <span>${formatCurrency(data.totalExpenses / data.results.length)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Ngày xuất:</span>
+                            <span>${data.exportDate}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Switch to detail view
+                mainView.style.display = 'none';
+                detailView.classList.add('active');
+                
+                // Close drawer
+                closeHistoryDrawer();
+                
+                // Update URL with hash for direct access
+                const hash = `month=${displayMonth}&year=${displayYear}`;
+                window.location.hash = hash;
+            }
+            
+            function showMainView() {
+                detailView.classList.remove('active');
+                mainView.style.display = 'block';
+                
+                // Clear URL hash
+                window.history.pushState("", document.title, window.location.pathname);
+            }
+            
+            // Check if URL contains hash for direct access to detail view
+            function checkUrlHash() {
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    const params = new URLSearchParams(hash);
+                    const month = params.get('month');
+                    const year = params.get('year');
+                    
+                    if (month && year) {
+                        // Find entry where the previous month matches the target month/year
+                        const targetMonth = parseInt(month);
+                        const targetYear = parseInt(year);
+                        
+                        // Calculate export month (next month from the target)
+                        let exportMonth = targetMonth + 1;
+                        let exportYear = targetYear;
+                        if (exportMonth > 12) {
+                            exportMonth = 1;
+                            exportYear++;
+                        }
+                        
+                        // Find matching item
+                        const matchingItem = historyData.find(item => {
+                            const data = item.data;
+                            return parseInt(data.exportMonth) === exportMonth && 
+                                   parseInt(data.exportYear) === exportYear;
+                        });
+                        
+                        if (matchingItem) {
+                            showDetailView(matchingItem.data, month, year);
+                        }
+                    }
+                }
+            }
+            
+            // Check hash on load
+            checkUrlHash();
+            
+            // Listen for hash changes
+            window.addEventListener('hashchange', checkUrlHash);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "exportDate": "01/04/2023 10:15",
+  "exportMonth": "04",
+  "exportYear": "2023",
+  "totalRevenue": 50000000,
+  "totalExpenses": 10000000,
+  "results": [
+    {
+      "name": "Nguyễn Văn A",
+      "percentage": 30,
+      "expenses": 4000000,
+      "percentageAmount": 15000000,
+      "expensesShare": 2500000,
+      "finalAmount": 16500000
+    },
+    {
+      "name": "Trần Thị B",
+      "percentage": 25,
+      "expenses": 3000000,
+      "percentageAmount": 12500000,
+      "expensesShare": 2500000,
+      "finalAmount": 13000000
+    },
+    {
+      "name": "Lê Văn C",
+      "percentage": 20,
+      "expenses": 2000000,
+      "percentageAmount": 10000000,
+      "expensesShare": 2500000,
+      "finalAmount": 9500000
+    },
+    {
+      "name": "Phạm Thị D",
+      "percentage": 25,
+      "expenses": 1000000,
+      "percentageAmount": 12500000,
+      "expensesShare": 2500000,
+      "finalAmount": 11000000
+    }
+  ]
+} 
