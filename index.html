@@ -1157,8 +1157,10 @@
             }
             
             function formatCurrency(amount) {
+                // Round the amount to nearest integer
+                const roundedAmount = Math.round(amount);
                 // Format with our custom function to ensure consistent display with periods
-                return formatDisplayNumber(amount);
+                return formatDisplayNumber(roundedAmount);
             }
             
             function saveToCache() {

@@ -42,4 +42,41 @@ const SALARY_HISTORY_DATA = [
         }
     ]
 }
+,
+{
+    "exportDate": "08/04/2025 20:48",
+    "exportMonth": "04",
+    "exportYear": 2025,
+    "totalRevenue": 7807000,
+    "totalExpenses": 100000,
+    "results": [
+        {
+            "name": "Nhân",
+            "percentage": 40,
+            "expenses": 0,
+            "rawExpenses": "",
+            "percentageAmount": 3122800,
+            "expensesShare": 33333.333333333336,
+            "finalAmount": 3089466.6666666665
+        },
+        {
+            "name": "Ý",
+            "percentage": 35,
+            "expenses": 0,
+            "rawExpenses": "",
+            "percentageAmount": 2732450,
+            "expensesShare": 33333.333333333336,
+            "finalAmount": 2699116.6666666665
+        },
+        {
+            "name": "Chị Iu",
+            "percentage": 25,
+            "expenses": 100000,
+            "rawExpenses": "100.000",
+            "percentageAmount": 1951750,
+            "expensesShare": 33333.333333333336,
+            "finalAmount": 2018416.6666666667
+        }
+    ]
+}
 ]; 
