@@ -116,10 +116,10 @@ const SALARY_HISTORY_DATA = [
     ]
 },
 {
-    "exportDate": "09/06/2025 21:01",
+    "exportDate": "11/06/2025 14:16",
     "exportMonth": "06",
     "exportYear": 2025,
-    "totalRevenue": 5500000,
+    "totalRevenue": 5231000,
     "totalExpenses": 79000,
     "results": [
         {
@@ -127,27 +127,27 @@ const SALARY_HISTORY_DATA = [
             "percentage": 10,
             "expenses": 79000,
             "rawExpenses": "79.000",
-            "percentageAmount": 550000,
+            "percentageAmount": 523100,
             "expensesShare": 26333.333333333332,
-            "finalAmount": 602666.6666666666
+            "finalAmount": 575766.6666666666
         },
         {
             "name": "Ý",
             "percentage": 80,
             "expenses": 0,
             "rawExpenses": "",
-            "percentageAmount": 4400000,
+            "percentageAmount": 4184800,
             "expensesShare": 26333.333333333332,
-            "finalAmount": 4373666.666666667
+            "finalAmount": 4158466.6666666665
         },
         {
             "name": "Chị Iu",
             "percentage": 10,
             "expenses": 0,
             "rawExpenses": "",
-            "percentageAmount": 550000,
+            "percentageAmount": 523100,
             "expensesShare": 26333.333333333332,
-            "finalAmount": 523666.6666666667
+            "finalAmount": 496766.6666666667
         }
     ]
 }
